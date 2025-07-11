@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubntu-latest
     steps:
       # Stage 1: Checkout
       - name: Checkout repository
@@ -41,8 +41,10 @@ jobs:
         run: |
           wget https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
           tar -xzf allure-2.27.0.tgz
-          sudo mv allure-2.27.0/bin/allure /usr/local/bin/
+          sudo mv allure-2.27.0 /opt/allure
+          sudo ln -s /opt/allure/bin/allure /usr/local/bin/allure
           allure plugin install allure-plugin-singlefile
+    
 
       - name: Run Pytest and collect Allure results
         run: |
