@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   test:
-    runs-on: 2-core
+    runs-on: ubuntu-latest
     steps:
       # Stage 1: Checkout
       - name: Checkout repository
