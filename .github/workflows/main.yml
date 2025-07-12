@@ -44,11 +44,12 @@ jobs:
           sudo mv allure-2.27.0 /opt/allure
           sudo ln -s /opt/allure/bin/allure /usr/local/bin/allure
 
-          - name: Run Pytest and collect Allure results
-          run: |
-            source venv/bin/activate
-            python -m pytest --alluredir=Reports || true
-            allure generate --clean --single-file -o Reports || true
+      - name: Run Pytest and collect Allure results
+        run: |
+          source venv/bin/activate
+          python -m pytest --alluredir=Reports || true
+          allure generate --clean --single-file -o Reports || true
+        
         
       - name: Move single HTML report to docs
         run: |
