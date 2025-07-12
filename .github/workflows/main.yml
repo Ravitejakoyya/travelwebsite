@@ -15,51 +15,50 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      # Stage 1: Checkout
       - name: Checkout repository
         uses: actions/checkout@v3
-        continue-on-error: true
 
-      # Stage 2: Setup
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-        continue-on-error: true
 
       - name: Set up virtual environment
         run: |
-          python -m venv venv                # Create virtual environment
-          source venv/bin/activate           # Activate venv (Linux/macOS syntax)
+          python -m venv venv
+          source venv/bin/activate
           python -m pip install --upgrade pip
-          pip install -r requirements.txt    # Install dependencies in venv
-          pip install allure-pytest          # Ensure Allure adapter is installed
-        continue-on-error: true
+          pip install -r requirements.txt
+          pip install allure-pytest
 
-      # Stage 3: Test Execution
-      - name: Install Allure CLI and single-file plugin
+      - name: Set up Java (required for Allure CLI)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Allure CLI
         run: |
           wget https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
           tar -xzf allure-2.27.0.tgz
-          sudo mv allure-2.27.0/bin/allure /usr/local/bin/
-          allure plugin install allure-plugin-singlefile
+          sudo mv allure-2.27.0 /opt/allure
+          sudo ln -s /opt/allure/bin/allure /usr/local/bin/allure
 
       - name: Run Pytest and collect Allure results
         run: |
-          source venv/bin/activate           # Activate venv
-          python -m pytest --alluredir=Reports || true  # Run tests and collect Allure results
-          allure generate --single-file Reports/index.html || true
+          source venv/bin/activate
+          python -m pytest --alluredir=Reports || true
+          allure generate --single-file -o Reports || true
 
       - name: Move single HTML report to docs
         run: |
-          mkdir -p docs                      # Ensure docs directory exists
-          mv Reports/index.html docs/         # Move the Allure report to docs  
-          
-      - name: deploy to GitHub Pages
+          mkdir -p docs
+          mv Reports/index.html docs/
+
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
           publish_branch: main
           keep_files: false
-        continue-on-error: true
