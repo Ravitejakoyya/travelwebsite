@@ -58,18 +58,27 @@ jobs:
           tar -xzf allure-2.27.0.tgz
           sudo mv allure-2.27.0 /opt/allure
           sudo ln -s /opt/allure/bin/allure /usr/local/bin/allure
-    
+          allure plugin install allure-plugin-singlefile
+
       - name: Run Pytest and collect Allure results
         run: |
-          source venv/bin/activate
-          python -m pytest --alluredir=Reports || true
-          allure generate --single-file -o Reports || true
+          source venv/bin/activate           # Activate venv
+          python -m pytest --alluredir=Reports || true  # Run tests and collect Allure results
+          allure generate --single-file Reports/index.html || true       
+          
+          
+      # - name: Run Pytest and collect Allure results
+      #   run: |
+      #     source venv/bin/activate
+      #     python -m pytest --alluredir=Reports || true
+      #     allure generate --single-file -o Reports --clean || true
       
 
       - name: Move single HTML report to docs
         run: |
           mkdir -p docs                      # Ensure docs directory exists
           mv Reports/index.html docs/         # Move the Allure report to docs  
+          
       - name: deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
